@@ -1,6 +1,7 @@
 package main.cn.edu.sicnu.check_system;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Paint;
@@ -12,6 +13,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -158,7 +161,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
                 break;
             case R.id.register:
-                //注册新的企业号
+                Intent intent = new Intent(this,RegisterActivity.class);
+                startActivity(intent);
                 break;
             case R.id.forget:
                 //忘记密码找回
