@@ -31,7 +31,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener{
+public final class MainActivity extends AppCompatActivity implements View.OnClickListener{
     private static final String TAG = "MainActivity";
     //企业账户
     private EditText accountEdit;
@@ -48,11 +48,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     //忘记密码
     private TextView forget;
 
+    private AppCompatActivity appCompatActivity;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        appCompatActivity = this;
         accountEdit = findViewById(R.id.account_edit);
         passwordEdit = findViewById(R.id.password_edit);
         login = findViewById(R.id.login_btn);
@@ -75,12 +77,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if(ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE)!= PackageManager.PERMISSION_GRANTED){
             ActivityCompat.requestPermissions(MainActivity.this,new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},0);
         }//if
+        //恢复密码
+        restore();
 
-        //如果记住密码已经被选择
-        if(rememberAccountPwd.isChecked()){
-            //恢复
-            restore();
-        }
     }
 
     /**
@@ -143,10 +142,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             String responseData = response.body().string();
                             Log.d(TAG, "run: "+responseData);
                             Message message = new Message();
-                            if(responseData.equals("true")){
-                                message.what = Constances.SUCCESS;
-                            }else{
+                            if(responseData.equals("false")){
                                 message.what = Constances.FAIL;
+                            }else{
+                                String[] split = responseData.split("&&");
+                                Constances.setCurrentCid(split[1]);
+                                message.what = Constances.SUCCESS;
                             }
                             handler.sendMessage(message);
                         } catch (IOException e) {
@@ -166,6 +167,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.forget:
                 //忘记密码找回
+                Intent intent1 = new Intent(this,HomeActivity.class);
+                startActivity(intent1);
                 break;
             default:break;
         }//switch
@@ -184,7 +187,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     passwordEdit.setEnabled(true);
                     progressBar.setVisibility(View.GONE);
                     //跳转活动
+                    Intent intent = new Intent(appCompatActivity,HomeActivity.class);
+                    startActivity(intent);
                     //销毁当前活动
+                    finish();
                     break;
                 case Constances.FAIL:
                     //重新恢复登录按钮和EditText
@@ -194,7 +200,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     //显示进度
                     Toast.makeText(MainActivity.this, "登陆失败", Toast.LENGTH_SHORT).show();
                     progressBar.setVisibility(View.GONE);
-
                     break;
                 default:break;
             }
